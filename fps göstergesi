@@ -1,0 +1,76 @@
+import tkinter as tk
+from tkinter import messagebox
+import time
+import psutil
+import wmi
+
+def get_system_info():
+    # RAM kullanımı (%) - Gerçek (psutil ile)
+    ram = psutil.virtual_memory().percent
+    
+    # Sıcaklık (CPU) - Gerçek (wmi ile, Windows'ta)
+    try:
+        w = wmi.WMI()
+        temp_info = w.query("SELECT * FROM Win32_TemperatureProbe")
+        temp = temp_info[0].CurrentReading if temp_info else "N/A"
+    except:
+        temp = "N/A"  # Eğer alınamazsa
+    
+    return ram, temp
+
+def update_fps():
+    global fps_counter, last_time
+    current_time = time.time()
+    delta_time = current_time - last_time
+    if delta_time > 0:
+        fps = 1 / delta_time
+        fps_label.config(text=f"FPS: {fps:.2f}")
+    last_time = current_time
+    root.after(100, update_fps)  # Her 100ms güncelle
+
+def update_system_info():
+    ram, temp = get_system_info()
+    ram_label.config(text=f"RAM Kullanımı: {ram}%")
+    temp_label.config(text=f"Sıcaklık: {temp}°C")
+    root.after(1000, update_system_info)  # Her 1 saniye güncelle
+
+def request_permission():
+    # Görev yöneticisine erişim için onay (basit mesaj)
+    response = messagebox.askyesno("İzin", "Görev yöneticisine erişim için onay veriyor musunuz?")
+    if response:
+        messagebox.showinfo("Onay", "Erişim verildi. Sistem bilgileri gösteriliyor.")
+        start_monitoring()
+    else:
+        messagebox.showwarning("İptal", "Erişim reddedildi.")
+
+def start_monitoring():
+    update_fps()
+    update_system_info()
+
+# Ana pencere
+root = tk.Tk()
+root.title("Sistem Monitörü")
+root.geometry("400x300")
+root.configure(bg="#f0f0f0")
+
+# Font ayarları
+font_label = ("Arial", 12)
+font_button = ("Arial", 14, "bold")
+
+# İzin butonu
+tk.Button(root, text="İzin Ver ve Başlat", command=request_permission, font=font_button, bg="#4CAF50", fg="white", width=20, height=2).pack(pady=20)
+
+# Etiketler (başlangıçta gizli, izin sonrası göster)
+fps_label = tk.Label(root, text="FPS: Hesaplanıyor...", font=font_label, bg="#f0f0f0")
+ram_label = tk.Label(root, text="RAM Kullanımı: Hesaplanıyor...", font=font_label, bg="#f0f0f0")
+temp_label = tk.Label(root, text="Sıcaklık: Hesaplanıyor...", font=font_label, bg="#f0f0f0")
+
+fps_label.pack(pady=10)
+ram_label.pack(pady=10)
+temp_label.pack(pady=10)
+
+# FPS için global değişkenler
+fps_counter = 0
+last_time = time.time()
+
+root.mainloop()
