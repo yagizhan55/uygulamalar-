@@ -1,0 +1,62 @@
+import tkinter as tk
+from tkinter import messagebox
+
+def hesapla():
+    try:
+        num1 = float(entry1.get())
+        op = op_var.get()
+        num2 = float(entry2.get())
+        
+        if op == '+':
+            result = num1 + num2
+        elif op == '-':
+            result = num1 - num2
+        elif op == '*':
+            result = num1 * num2
+        elif op == '/':
+            if num2 != 0:
+                result = num1 / num2
+            else:
+                messagebox.showerror("Hata", "Sıfıra bölme!")
+                return
+        else:
+            messagebox.showerror("Hata", "Geçersiz işlem!")
+            return
+        
+        result_label.config(text=f"Sonuç: {result}")
+    except ValueError:
+        messagebox.showerror("Hata", "Geçersiz sayı girdiniz!")
+
+# Ana pencere
+root = tk.Tk()
+root.title("Basit Hesap Makinesi")
+root.geometry("400x300")  # Pencereyi büyüt
+root.configure(bg="#f0f0f0")  # Arka plan rengi
+
+# Font ayarları
+font_label = ("Arial", 12)
+font_entry = ("Arial", 12)
+font_button = ("Arial", 14, "bold")
+
+# Giriş alanları
+tk.Label(root, text="İlk sayı:", font=font_label, bg="#f0f0f0").grid(row=0, column=0, padx=10, pady=10, sticky="e")
+entry1 = tk.Entry(root, font=font_entry, width=20)
+entry1.grid(row=0, column=1, padx=10, pady=10)
+
+tk.Label(root, text="İşlem (+, -, *, /):", font=font_label, bg="#f0f0f0").grid(row=1, column=0, padx=10, pady=10, sticky="e")
+op_var = tk.StringVar()
+op_entry = tk.Entry(root, textvariable=op_var, font=font_entry, width=20)
+op_entry.grid(row=1, column=1, padx=10, pady=10)
+
+tk.Label(root, text="İkinci sayı:", font=font_label, bg="#f0f0f0").grid(row=2, column=0, padx=10, pady=10, sticky="e")
+entry2 = tk.Entry(root, font=font_entry, width=20)
+entry2.grid(row=2, column=1, padx=10, pady=10)
+
+# Hesapla butonu
+tk.Button(root, text="Hesapla", command=hesapla, font=font_button, bg="#4CAF50", fg="white", width=15, height=2).grid(row=3, column=0, columnspan=2, pady=20)
+
+# Sonuç etiketi
+result_label = tk.Label(root, text="Sonuç: ", font=("Arial", 14, "bold"), bg="#f0f0f0", fg="#333")
+result_label.grid(row=4, column=0, columnspan=2, pady=10)
+
+root.mainloop()
